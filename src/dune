@@ -12,11 +12,19 @@ let modules =
   List.filter (fun (_, v) -> version < v) modules
   |> List.map fst
 
+let result_module =
+  if version < (4, 03) then
+    "result-as-newtype.ml"
+  else
+    "result-as-alias.ml"
+
 let () =
   Printf.ksprintf send {|
 (library
    (wrapped false)
    (name stdlib_shims)
    (public_name stdlib_shims)
-   (modules %s))
-|} (String.concat " " modules)
+   (modules result %s))
+
+(rule (copy# %s result.ml))
+|} (String.concat " " modules) result_module
